@@ -12,6 +12,8 @@ def amount_owed(tier: dict, gross: int, cash: int) -> int:
         return tier["value"]
     if kind == "share_of_remaining":
         return round(cash * tier["value"])
+    if kind == "recoup":
+        return round(tier["principal"] * tier["multiple"])
     raise ValueError(f"Unknown tier kind: {kind}")
 
 
