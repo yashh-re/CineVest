@@ -43,3 +43,18 @@ def test_two_tiers_with_the_same_name_are_rejected():
     ]
     with pytest.raises(ValueError, match="Gap loan"):
         rows_to_tiers(rows)
+
+def test_rows_are_paid_in_the_order_column_order():
+    rows = [
+        {"Order": 2, "Name": "Second", "Kind": "fixed", "Amount ($)": 100},
+        {"Order": 1, "Name": "First", "Kind": "fixed", "Amount ($)": 100},
+    ]
+    assert [t.name for t in rows_to_tiers(rows)] == ["First", "Second"]
+
+
+def test_rows_without_an_order_go_last():
+    rows = [
+        {"Order": None, "Name": "New row", "Kind": "fixed", "Amount ($)": 100},
+        {"Order": 1, "Name": "First", "Kind": "fixed", "Amount ($)": 100},
+    ]
+    assert [t.name for t in rows_to_tiers(rows)] == ["First", "New row"]

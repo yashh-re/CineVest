@@ -30,6 +30,8 @@ edited = st.data_editor(
     hide_index=True,
     use_container_width=True,
     column_config={
+            "Order": st.column_config.NumberColumn(
+                "Order", min_value=0, step=0.1, help="Lower numbers are paid first"),
         "Kind": st.column_config.SelectboxColumn("Kind", options=TIER_KINDS),
         "Rate (%)": st.column_config.NumberColumn("Rate (%)", min_value=0, max_value=100),
         "Amount ($)": st.column_config.NumberColumn("Amount ($)", min_value=0, format="$%.2f"),

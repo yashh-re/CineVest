@@ -2,7 +2,7 @@ import math
 
 from engine.models import Tier
 
-COLUMNS = ["Name", "Kind", "Rate (%)", "Amount ($)", "Principal ($)", "Multiple"]
+COLUMNS = ["Order", "Name", "Kind", "Rate (%)", "Amount ($)", "Principal ($)", "Multiple"]
 RATE_KINDS = ("percent_of_gross", "share_of_remaining")
 
 
@@ -28,10 +28,19 @@ def _cents(row: dict, column: str) -> int:
     return round(_number(row, column) * 100)
 
 
+def _order_key(row: dict) -> tuple:
+    """Sort key: numbered rows first (lowest first), then rows with no number."""
+    order = row.get("Order")
+    if _is_blank(order):
+        return (1, 0.0)
+    return (0, float(order))
+
+
 def rows_to_tiers(rows: list[dict]) -> list[Tier]:
     """Turn on-screen table rows (dollars, percentages) into engine Tiers (cents, fractions)."""
     tiers = []
     seen_names = set()
+    rows = sorted(rows, key=_order_key)
     for row in rows:
         if _is_blank(row.get("Name")):
             continue  # skip empty rows
@@ -56,9 +65,10 @@ def rows_to_tiers(rows: list[dict]) -> list[Tier]:
 def tiers_to_rows(tiers: list) -> list[dict]:
     """Turn engine tiers into table rows, for showing a saved deal on screen."""
     rows = []
-    for tier in tiers:
+    for position, tier in enumerate(tiers, start=1):
         tier = tier if isinstance(tier, Tier) else Tier.from_dict(tier)
         row = dict.fromkeys(COLUMNS)  # every column, all empty
+        row["Order"] = position
         row["Name"] = tier.name
         row["Kind"] = tier.kind
         if tier.kind in RATE_KINDS:
