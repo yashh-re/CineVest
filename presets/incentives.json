@@ -1,0 +1,32 @@
+{
+  "as_of": "2026-11-23",
+  "states": {
+    "IN": {
+      "name": "Indiana",
+      "base_rate": 0.20,
+      "max_rate": 0.30,
+      "per_project_cap": 25000000,
+      "type": "transferable",
+      "broker_discount": 0.10,
+      "source": "https://www.filmindy.com/incentives"
+    },
+    "GA": {
+      "name": "Georgia",
+      "base_rate": 0.20,
+      "max_rate": 0.30,
+      "per_project_cap": null,
+      "type": "transferable",
+      "broker_discount": 0.10,
+      "source": "https://vitrina.ai/?p=141742"
+    },
+    "NM": {
+      "name": "New Mexico",
+      "base_rate": 0.25,
+      "max_rate": 0.40,
+      "per_project_cap": null,
+      "type": "refundable",
+      "broker_discount": 0.0,
+      "source": "https://vitrina.ai/blog/best-film-tax-incentives-us-states-countries/"
+    }
+  }
+}
