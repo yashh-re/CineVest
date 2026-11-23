@@ -3,6 +3,7 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 
+from charts import scenario_bar_chart
 from engine.deal import load_deal
 from engine.incentives import incentive_amount, load_presets
 from engine.returns import breakeven_gross, moic, received_by
@@ -112,7 +113,9 @@ scenarios = {
                                 value=defaults["breakout"] // 100, step=50_000) * 100,
 }
 
-table = pd.DataFrame(compare_scenarios(tiers, scenarios))
+rows = compare_scenarios(tiers, scenarios)
+st.plotly_chart(scenario_bar_chart(rows, list(scenarios)), use_container_width=True)
+table = pd.DataFrame(rows)
 for label in scenarios:
     table[label] = table[label].map(lambda cents: f"${cents / 100:,.0f}")
 st.dataframe(table, hide_index=True, use_container_width=True)
