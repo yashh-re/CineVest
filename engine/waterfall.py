@@ -1,12 +1,15 @@
+from engine.models import Tier
+
+
 def pay_tier(cash: int, owed: int) -> tuple[int, int]:
     """Pay as much of `owed` as `cash` allows. Returns (paid, cash_left)."""
     paid = min(cash, owed)
     return paid, cash - paid
 
 
-def party_owed(party: dict) -> int:
-    """What one party is due: principal times its multiple, in cents."""
-    return round(party["principal"] * party["multiple"])
+def party_owed(party) -> int:
+    """What a Party (or a recoup Tier) is due: principal times multiple, in cents."""
+    return round(party.principal * party.multiple)
 
 
 def split_pro_rata(amount: int, weights: list[int]) -> list[int]:
@@ -23,37 +26,37 @@ def split_pro_rata(amount: int, weights: list[int]) -> list[int]:
     return shares
 
 
-def amount_owed(tier: dict, gross: int, cash: int) -> int:
+def amount_owed(tier: Tier, gross: int, cash: int) -> int:
     """How much a tier is due, in cents."""
-    kind = tier["kind"]
-    if kind == "percent_of_gross":
-        return round(gross * tier["value"])
-    if kind == "fixed":
-        return tier["value"]
-    if kind == "share_of_remaining":
-        return round(cash * tier["value"])
-    if kind == "recoup":
+    if tier.kind == "percent_of_gross":
+        return round(gross * tier.value)
+    if tier.kind == "fixed":
+        return tier.value
+    if tier.kind == "share_of_remaining":
+        return round(cash * tier.value)
+    if tier.kind == "recoup":
         return party_owed(tier)
-    if kind == "pari_passu":
-        return sum(party_owed(p) for p in tier["parties"])
-    raise ValueError(f"Unknown tier kind: {kind}")
+    if tier.kind == "pari_passu":
+        return sum(party_owed(p) for p in tier.parties)
+    raise ValueError(f"Unknown tier kind: {tier.kind}")
 
 
-def run_waterfall(gross: int, tiers: list[dict]) -> dict[str, int]:
+def run_waterfall(gross: int, tiers: list) -> dict[str, int]:
     """Pay gross revenue (in cents) through the tiers, in order.
 
+    `tiers` can be Tier objects or plain dictionaries (as loaded from JSON).
     Returns how much each tier (or each pari passu party) was paid, by name.
     """
+    tiers = [t if isinstance(t, Tier) else Tier.from_dict(t) for t in tiers]
     cash = gross
     paid_by_tier = {}
     for tier in tiers:
         owed = amount_owed(tier, gross, cash)
         paid, cash = pay_tier(cash, owed)
-        if tier["kind"] == "pari_passu":
-            parties = tier["parties"]
-            weights = [party_owed(p) for p in parties]
-            for party, share in zip(parties, split_pro_rata(paid, weights)):
-                paid_by_tier[party["name"]] = share
+        if tier.kind == "pari_passu":
+            weights = [party_owed(p) for p in tier.parties]
+            for party, share in zip(tier.parties, split_pro_rata(paid, weights)):
+                paid_by_tier[party.name] = share
         else:
-            paid_by_tier[tier["name"]] = paid
+            paid_by_tier[tier.name] = paid
     return paid_by_tier

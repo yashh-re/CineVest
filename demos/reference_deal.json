@@ -1,0 +1,17 @@
+{
+  "title": "Reference deal ($1M indie feature)",
+  "scenarios": {
+    "flop": 40000000,
+    "base": 150000000,
+    "breakout": 400000000
+  },
+  "tiers": [
+    {"name": "CAM fee", "kind": "percent_of_gross", "value": 0.01},
+    {"name": "Sales agent fee", "kind": "percent_of_gross", "value": 0.15},
+    {"name": "Sales expenses", "kind": "fixed", "value": 5000000},
+    {"name": "Gap loan", "kind": "recoup", "principal": 15000000, "multiple": 1.12},
+    {"name": "Equity recoupment", "kind": "recoup", "principal": 35000000, "multiple": 1.20},
+    {"name": "Investor profit share", "kind": "share_of_remaining", "value": 0.5},
+    {"name": "Producer profit share", "kind": "share_of_remaining", "value": 1.0}
+  ]
+}
