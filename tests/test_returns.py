@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 
 from engine.deal import load_deal
-from engine.returns import irr, moic, npv
+from engine.returns import breakeven_gross, irr, moic, npv, received_by
 from engine.waterfall import run_waterfall
 
 DEMO = Path(__file__).parent.parent / "demos" / "reference_deal.json"
@@ -46,3 +46,24 @@ def test_getting_paid_earlier_raises_irr():
 def test_irr_with_no_money_coming_back_raises_an_error():
     with pytest.raises(ValueError):
         irr([-350_000, -10_000])
+
+EQUITY = ["Equity recoupment", "Investor profit share"]
+
+
+def test_equity_breakeven_matches_excel_goal_seek():
+    tiers = load_deal(DEMO)["tiers"]
+    breakeven = breakeven_gross(tiers, EQUITY, EQUITY_INVESTED)
+    assert breakeven == pytest.approx(67_619_048, abs=100)  # about $676,190.48
+
+
+def test_breakeven_is_the_smallest_revenue_that_works():
+    tiers = load_deal(DEMO)["tiers"]
+    breakeven = breakeven_gross(tiers, EQUITY, EQUITY_INVESTED)
+    assert received_by(breakeven, tiers, EQUITY) >= EQUITY_INVESTED
+    assert received_by(breakeven - 1, tiers, EQUITY) < EQUITY_INVESTED
+
+
+def test_party_that_never_breaks_even_raises_an_error():
+    tiers = [{"name": "Capped", "kind": "fixed", "value": 100}]
+    with pytest.raises(ValueError):
+        breakeven_gross(tiers, ["Capped"], 1_000)

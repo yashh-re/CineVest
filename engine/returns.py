@@ -1,3 +1,6 @@
+from engine.waterfall import run_waterfall
+
+
 def moic(received: int, invested: int) -> float:
     """Multiple on invested capital: total received divided by total invested.
 
@@ -30,3 +33,26 @@ def irr(cash_flows: list[float], low: float = -0.99, high: float = 10.0) -> floa
         else:
             high = mid  # negative: the true rate is lower
     return (low + high) / 2
+
+def received_by(gross: int, tiers: list, names: list[str]) -> int:
+    """Total paid to the named tiers or parties at a given gross revenue (cents)."""
+    paid = run_waterfall(gross, tiers)
+    return sum(paid.get(name, 0) for name in names)
+
+
+def breakeven_gross(tiers: list, names: list[str], invested: int,
+                    max_gross: int = 10**12) -> int:
+    """Smallest gross revenue (in cents) at which `names` together get back `invested`.
+
+    Uses binary search over whole cents, from $0 up to `max_gross` ($10 billion).
+    """
+    if received_by(max_gross, tiers, names) < invested:
+        raise ValueError("These parties never break even, even at very high revenue")
+    low, high = 0, max_gross
+    while low < high:
+        mid = (low + high) // 2
+        if received_by(mid, tiers, names) >= invested:
+            high = mid      # enough: breakeven is here or lower
+        else:
+            low = mid + 1   # not enough: breakeven is higher
+    return low
