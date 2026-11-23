@@ -5,10 +5,10 @@ import streamlit as st
 
 from engine.deal import load_deal
 from engine.incentives import incentive_amount, load_presets
-from engine.returns import breakeven_gross, moic
+from engine.returns import breakeven_gross, moic, received_by
 from engine.stack import stack_summary
 from engine.table import COLUMNS, rows_to_tiers, tiers_to_rows
-from engine.waterfall import run_waterfall
+from engine.scenarios import compare_scenarios
 
 DEAL_FILE = Path(__file__).parent / "demos" / "reference_deal.json"
 TIER_KINDS = ["percent_of_gross", "fixed", "recoup", "share_of_remaining"]
@@ -97,20 +97,25 @@ except ValueError as error:
     st.error(str(error))
     st.stop()
 
-# 3. The outcome at one level of revenue
-st.subheader("3. The outcome")
-gross_dollars = st.slider(
-    "Gross revenue ($)", min_value=0, max_value=5_000_000,
-    value=1_500_000, step=10_000,
-)
-gross = gross_dollars * 100  # the engine works in cents
+# 3. Three scenarios side by side
+st.subheader("3. Scenarios")
+st.write("How the money flows if the film flops, does okay, or breaks out.")
 
-paid = run_waterfall(gross, tiers)
-results = pd.DataFrame({
-    "Who": list(paid.keys()),
-    "Paid": [f"${cents / 100:,.2f}" for cents in paid.values()],
-})
-st.dataframe(results, hide_index=True, use_container_width=True)
+defaults = deal["scenarios"]
+c1, c2, c3 = st.columns(3)
+scenarios = {
+    "Flop": c1.number_input("Flop revenue ($)", min_value=0,
+                            value=defaults["flop"] // 100, step=50_000) * 100,
+    "Base": c2.number_input("Base revenue ($)", min_value=0,
+                            value=defaults["base"] // 100, step=50_000) * 100,
+    "Breakout": c3.number_input("Breakout revenue ($)", min_value=0,
+                                value=defaults["breakout"] // 100, step=50_000) * 100,
+}
+
+table = pd.DataFrame(compare_scenarios(tiers, scenarios))
+for label in scenarios:
+    table[label] = table[label].map(lambda cents: f"${cents / 100:,.0f}")
+st.dataframe(table, hide_index=True, use_container_width=True)
 
 # 4. The equity investors' returns
 st.subheader("4. The equity investors")
@@ -124,15 +129,21 @@ invested = equity_dollars * 100
 st.write(f"Equity invested: ${equity_dollars:,.0f} (from the capital stack)")
 
 if equity_names and invested > 0:
-    received = sum(paid[name] for name in equity_names)
-    col1, col2, col3 = st.columns(3)
-    col1.metric("Equity received", f"${received / 100:,.0f}")
-    col2.metric("Equity MOIC", f"{moic(received, invested):.2f}x")
+    returns = []
+    for label, gross in scenarios.items():
+        received = received_by(gross, tiers, equity_names)
+        returns.append({
+            "Scenario": label,
+            "Equity received": f"${received / 100:,.0f}",
+            "MOIC": f"{moic(received, invested):.2f}x",
+        })
+    st.dataframe(pd.DataFrame(returns), hide_index=True, use_container_width=True)
+
     try:
         breakeven = breakeven_gross(tiers, equity_names, invested)
-        col3.metric("Equity breakeven revenue", f"${breakeven / 100:,.0f}")
+        st.metric("Equity breakeven revenue", f"${breakeven / 100:,.0f}")
     except ValueError:
-        col3.metric("Equity breakeven revenue", "Never")
+        st.metric("Equity breakeven revenue", "Never")
 else:
     st.info("Pick the equity tiers and set an equity amount to see their returns.")
 
