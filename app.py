@@ -3,6 +3,7 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 
+from export import build_workbook
 from charts import scenario_bar_chart
 from engine.deal import load_deal
 from engine.incentives import incentive_amount, load_presets
@@ -147,6 +148,12 @@ if equity_names and invested > 0:
         st.metric("Equity breakeven revenue", f"${breakeven / 100:,.0f}")
     except ValueError:
         st.metric("Equity breakeven revenue", "Never")
+    st.download_button(
+        "Download Excel",
+        data=build_workbook(deal["title"], tiers, scenarios, equity_names, invested),
+        file_name="cinevest_deal.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
 else:
     st.info("Pick the equity tiers and set an equity amount to see their returns.")
 
