@@ -1,7 +1,6 @@
 import pytest
 
-from engine.waterfall import pay_tier, run_waterfall
-
+from engine.waterfall import pay_tier, run_waterfall, split_pro_rata
 
 def usd(dollars):
     """Convert whole dollars to cents, so tests read like the spreadsheet."""
@@ -83,3 +82,24 @@ def test_unknown_tier_kind_raises_an_error():
     typo = {"name": "Oops", "kind": "fixd", "value": 100}
     with pytest.raises(ValueError):
         run_waterfall(usd(1_000), [typo])
+
+def test_split_pro_rata_matches_excel():
+    shares = split_pro_rata(usd(118_000), [usd(240_000), usd(180_000)])
+    assert shares == [6_742_857, 5_057_143]  # $67,428.57 and $50,571.43
+    assert sum(shares) == usd(118_000)
+
+
+def test_pari_passu_tier_splits_equity_in_a_flop():
+    tiers = reference_tiers()
+    tiers[4] = {
+        "name": "Equity recoupment",
+        "kind": "pari_passu",
+        "parties": [
+            {"name": "Investor A", "principal": usd(200_000), "multiple": 1.20},
+            {"name": "Investor B", "principal": usd(150_000), "multiple": 1.20},
+        ],
+    }
+    paid = run_waterfall(usd(400_000), tiers)
+    assert paid["Investor A"] == 6_742_857
+    assert paid["Investor B"] == 5_057_143
+    assert sum(paid.values()) == usd(400_000)
