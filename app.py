@@ -11,6 +11,8 @@ from engine.scenarios import compare_scenarios
 from engine.stack import stack_summary
 from engine.table import COLUMNS, rows_to_tiers, tiers_to_rows
 from export import build_workbook
+from styles import apply_style, render_hero
+
 
 DEMOS_DIR = Path(__file__).parent / "demos"
 DEMOS = {
@@ -29,8 +31,8 @@ KIND_HELP = (
 )
 
 st.set_page_config(page_title="CineVest")
-st.title("CineVest")
-st.write("See who gets paid back from a film, in what order, and how much.")
+apply_style()
+render_hero()
 
 presets = load_presets()
 

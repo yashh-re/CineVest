@@ -5,10 +5,10 @@ from engine.models import Tier
 # A family of shades per role, so blocks with the same role look related
 # but neighbouring blocks can still be told apart.
 ROLE_COLOURS = {
-    "Fees & costs": ["#9CA3AF", "#6B7280", "#D1D5DB", "#4B5563"],
-    "Lenders": ["#3B82F6", "#60A5FA", "#2563EB", "#93C5FD"],
-    "Investors": ["#10B981", "#34D399", "#059669", "#6EE7B7"],
-    "Producer & others": ["#EAB308", "#FACC15", "#CA8A04", "#FDE047"],
+    "Fees & costs": ["#71717A", "#52525B", "#A1A1AA", "#3F3F46"],
+    "Lenders": ["#7DD3FC", "#38BDF8", "#BAE6FD", "#0EA5E9"],
+    "Investors": ["#7B6CF6", "#9D92F8", "#5B4BE0", "#BDB5FB"],
+    "Producer & others": ["#D9E86B", "#E6F09A", "#C2D34F", "#EEF5B8"],
 }
 
 
@@ -57,6 +57,8 @@ def scenario_bar_chart(rows: list[dict], scenarios: list[str],
             x=scenarios,
             y=[row[label] / 100 for label in scenarios],
             hovertemplate="%{x}: $%{y:,.0f}<extra>" + name + "</extra>",
+            marker_line_color="#1A1A1F",
+            marker_line_width=2,
             **style,
         ))
     fig.update_layout(
@@ -68,4 +70,13 @@ def scenario_bar_chart(rows: list[dict], scenarios: list[str],
         legend_traceorder="reversed+grouped",
         margin={"t": 30},
     )
+    # Dark card to match the app
+    fig.update_layout(
+        paper_bgcolor="#1A1A1F",
+        plot_bgcolor="#1A1A1F",
+        font={"family": "Space Grotesk, sans-serif", "color": "#F4F4F5", "size": 14},
+        bargap=0.35,
+    )
+    fig.update_xaxes(showline=True, linecolor="#3F3F46", linewidth=2)
+    fig.update_yaxes(showline=True, linecolor="#3F3F46", linewidth=2, gridcolor="#26262D")
     return fig
