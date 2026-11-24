@@ -1,4 +1,5 @@
 # CineVest
+![Tests](https://github.com/yashh-re/CineVest/actions/workflows/tests.yml/badge.svg)
 
 A film-finance tool that shows indie filmmakers and their investors who gets paid back, in what order, and how much, before the deal is signed.
 
