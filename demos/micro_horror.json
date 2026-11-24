@@ -1,0 +1,25 @@
+{
+  "title": "Micro-budget horror ($150K)",
+  "description": "A $150K horror film funded mostly by one equity investor and sold through a digital distributor. There are no lenders, so the investor is next in line after fees.",
+  "scenarios": {
+    "flop": 6000000,
+    "base": 30000000,
+    "breakout": 150000000
+  },
+  "stack": {
+    "budget": 15000000,
+    "presales": 0,
+    "gap_loan": 0,
+    "equity": 12300000,
+    "state": "IN",
+    "credit_rate": 0.2,
+    "qualifying_spend": 15000000
+  },
+  "tiers": [
+    {"name": "Distribution fee", "kind": "percent_of_gross", "value": 0.15},
+    {"name": "Festival and marketing costs", "kind": "fixed", "value": 1500000},
+    {"name": "Equity recoupment", "kind": "recoup", "principal": 12300000, "multiple": 1.20},
+    {"name": "Investor profit share", "kind": "share_of_remaining", "value": 0.5},
+    {"name": "Producer profit share", "kind": "share_of_remaining", "value": 1.0}
+  ]
+}

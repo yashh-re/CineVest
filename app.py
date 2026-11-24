@@ -12,7 +12,12 @@ from engine.stack import stack_summary
 from engine.table import COLUMNS, rows_to_tiers, tiers_to_rows
 from export import build_workbook
 
-DEAL_FILE = Path(__file__).parent / "demos" / "reference_deal.json"
+DEMOS_DIR = Path(__file__).parent / "demos"
+DEMOS = {
+    "Reference indie drama ($1M)": "reference_deal.json",
+    "Micro-budget horror ($150K)": "micro_horror.json",
+    "Indie thriller ($8M)": "indie_thriller.json",
+}
 TIER_KINDS = ["percent_of_gross", "fixed", "recoup", "share_of_remaining"]
 DEFAULT_EQUITY = ["Equity recoupment", "Investor profit share"]
 
@@ -29,17 +34,26 @@ st.write("See who gets paid back from a film, in what order, and how much.")
 
 presets = load_presets()
 
-# Open a saved deal, or start from the reference deal
+# Start from an example, or open a saved deal
+demo_label = st.selectbox(
+    "Start from an example",
+    options=list(DEMOS),
+    help="Example deals to explore. Change anything below to model your own.",
+)
+deal = load_deal(DEMOS_DIR / DEMOS[demo_label])
+
 uploaded = st.file_uploader(
-    "Open a saved deal file (optional)", type="json",
+    "Or open a saved deal file", type="json",
     help="Open a deal file you downloaded from CineVest earlier.")
-deal = load_deal(DEAL_FILE)
 if uploaded is not None:
     try:
         deal = deal_from_json(uploaded.getvalue().decode("utf-8"))
         st.success(f"Opened: {deal.get('title', 'Untitled deal')}")
     except ValueError as error:
         st.error(f"Couldn't open that file. {error}")
+
+if deal.get("description"):
+    st.info(deal["description"])
 
 title = st.text_input(
     "Deal name", value=deal.get("title", "Untitled deal"),

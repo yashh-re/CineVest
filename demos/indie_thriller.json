@@ -1,0 +1,29 @@
+{
+  "title": "Indie thriller ($8M)",
+  "description": "An $8M thriller shot in Georgia, funded by presales, a 30% tax credit, a gap loan and equity. Cast and crew deferred part of their fees, and the director has a 5% backend.",
+  "scenarios": {
+    "flop": 400000000,
+    "base": 1400000000,
+    "breakout": 4000000000
+  },
+  "stack": {
+    "budget": 800000000,
+    "presales": 280000000,
+    "gap_loan": 120000000,
+    "equity": 238000000,
+    "state": "GA",
+    "credit_rate": 0.3,
+    "qualifying_spend": 600000000
+  },
+  "tiers": [
+    {"name": "CAM fee", "kind": "percent_of_gross", "value": 0.01},
+    {"name": "Sales agent fee", "kind": "percent_of_gross", "value": 0.12},
+    {"name": "Sales and marketing expenses", "kind": "fixed", "value": 25000000},
+    {"name": "Gap loan", "kind": "recoup", "principal": 120000000, "multiple": 1.15},
+    {"name": "Equity recoupment", "kind": "recoup", "principal": 238000000, "multiple": 1.20},
+    {"name": "Deferred cast and crew fees", "kind": "fixed", "value": 30000000},
+    {"name": "Director backend", "kind": "share_of_remaining", "value": 0.05},
+    {"name": "Investor profit share", "kind": "share_of_remaining", "value": 0.5},
+    {"name": "Producer profit share", "kind": "share_of_remaining", "value": 1.0}
+  ]
+}

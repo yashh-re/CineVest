@@ -1,5 +1,6 @@
 {
   "title": "Reference deal ($1M indie feature)",
+  "description": "A $1M indie drama funded by a presale, an Indiana tax credit, a gap loan and $350K of equity. The example used throughout CineVest.",
   "scenarios": {
     "flop": 40000000,
     "base": 150000000,
