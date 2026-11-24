@@ -144,6 +144,26 @@ NEOBRUTAL_CSS = """
   border-radius: 999px !important;
 }
 .stApp [data-baseweb="tag"] span { color: var(--text) !important; font-weight: 700; }
+/* ---------- About page: step cards ---------- */
+.cv-card {
+  background: var(--card);
+  border: 1.5px solid var(--line);
+  border-radius: 18px;
+  padding: 18px 18px 6px 18px;
+  height: 100%;
+}
+.cv-step {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.2rem;
+  line-height: 1;
+  color: var(--lime);
+}
+.cv-card-title {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 1.05rem;
+  margin: 6px 0 6px 0;
+}
+.cv-card p { color: var(--muted); font-size: 0.95rem; }
 </style>
 """
 
