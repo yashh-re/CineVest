@@ -3,7 +3,7 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 
-from charts import scenario_bar_chart
+from charts import payee_roles, scenario_bar_chart
 from engine.deal import build_deal, deal_from_json, deal_to_json, load_deal
 from engine.incentives import incentive_amount, load_presets
 from engine.returns import breakeven_gross, moic, received_by
@@ -124,6 +124,14 @@ except ValueError as error:
     st.error(str(error))
     st.stop()
 
+# Which tiers belong to the equity investors (used by the chart and section 4)
+names = [tier.name for tier in tiers]
+equity_names = st.multiselect(
+    "Which tiers pay the equity investors?",
+    options=names,
+    default=[name for name in DEFAULT_EQUITY if name in names],
+)
+
 # 3. Three scenarios side by side
 st.subheader("3. Scenarios")
 st.write("How the money flows if the film flops, does okay, or breaks out.")
@@ -140,7 +148,10 @@ scenarios = {
 }
 
 rows = compare_scenarios(tiers, scenarios)
-st.plotly_chart(scenario_bar_chart(rows, list(scenarios)), use_container_width=True)
+st.plotly_chart(
+    scenario_bar_chart(rows, list(scenarios), payee_roles(tiers, equity_names)),
+    use_container_width=True,
+)
 table = pd.DataFrame(rows)
 for label in scenarios:
     table[label] = table[label].map(lambda cents: f"${cents / 100:,.0f}")
@@ -148,12 +159,6 @@ st.dataframe(table, hide_index=True, use_container_width=True)
 
 # 4. The equity investors' returns
 st.subheader("4. The equity investors")
-names = [tier.name for tier in tiers]
-equity_names = st.multiselect(
-    "Which tiers pay the equity investors?",
-    options=names,
-    default=[name for name in DEFAULT_EQUITY if name in names],
-)
 invested = equity_dollars * 100
 st.write(f"Equity invested: ${equity_dollars:,.0f} (from the capital stack)")
 
